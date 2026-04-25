@@ -1,0 +1,1417 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>আমার অ্যাপস</title>
+<meta content="#1a7a4a" name="theme-color"/>
+<meta content="yes" name="mobile-web-app-capable"/>
+<meta content="yes" name="apple-mobile-web-app-capable"/>
+<meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
+<link rel="manifest" href="manifest.json"/>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<style>
+/* ── ORIGINAL APP STYLES ── */
+
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+:root {
+  --green:#1a7a4a; --green-dark:#0f5233; --green-light:#e8f5ee; --green-mid:#2d9e63;
+  --red:#d63031; --red-light:#fdf0f0; --orange:#e67e22; --orange-light:#fef5ec;
+  --bg:#f0f4f2; --white:#ffffff;
+  --text:#1a2e22; --text-light:#5a7a66; --border:#c8ddd2;
+  --shadow:0 4px 20px rgba(26,122,74,0.12);
+}
+html, body { height:100%; overflow-x:hidden; }
+body { font-family:'Hind Siliguri',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; padding-bottom:100px; overscroll-behavior:none; }
+
+/* ── INSTALL BANNER ── */
+#installBanner { display:none; position:fixed; top:0; left:0; right:0; background:var(--green-dark); color:white; padding:12px 16px; z-index:1000; align-items:center; gap:10px; box-shadow:0 2px 12px rgba(0,0,0,0.3); }
+#installBanner.show { display:flex; }
+.install-text { flex:1; font-size:13px; font-weight:500; }
+.install-btn { background:white; color:var(--green-dark); border:none; padding:8px 16px; border-radius:20px; font-family:inherit; font-size:13px; font-weight:700; cursor:pointer; white-space:nowrap; }
+.install-close { background:none; border:none; color:rgba(255,255,255,0.7); font-size:18px; cursor:pointer; padding:4px; }
+
+.header { background:linear-gradient(135deg,var(--green-dark) 0%,var(--green) 60%,var(--green-mid) 100%); padding:20px 16px 30px; position:relative; overflow:hidden; }
+.header::before { content:'৳'; position:absolute; right:-10px; top:-20px; font-size:120px; color:rgba(255,255,255,0.06); font-weight:700; }
+.header-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; flex-wrap:wrap; gap:8px; }
+.header h1 { color:white; font-size:20px; font-weight:700; }
+.header-subtitle { color:rgba(255,255,255,0.7); font-size:12px; margin-top:2px; }
+.sync-btn { background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.3); color:white; padding:8px 14px; border-radius:20px; font-size:12px; font-family:'Hind Siliguri',sans-serif; cursor:pointer; transition:all 0.2s; }
+.sync-btn:active { transform:scale(0.95); background:rgba(255,255,255,0.25); }
+
+.balance-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:6px; }
+.balance-card { background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.2); border-radius:14px; padding:12px 14px; cursor:pointer; transition:all 0.2s; }
+.balance-card:active { transform:scale(0.97); }
+.balance-card.total { grid-column:1/-1; background:rgba(255,255,255,0.18); border-color:rgba(255,255,255,0.35); }
+.balance-label { color:rgba(255,255,255,0.75); font-size:11px; margin-bottom:4px; }
+.balance-amount { color:white; font-size:20px; font-weight:700; }
+.balance-card.total .balance-amount { font-size:26px; }
+.edit-hint { font-size:10px; color:rgba(255,255,255,0.5); margin-top:3px; }
+
+.page-tabs { display:flex; background:white; border-bottom:1px solid var(--border); position:sticky; top:0; z-index:50; }
+.page-tab { flex:1; padding:12px 8px; border:none; background:none; font-family:'Hind Siliguri',sans-serif; font-size:13px; font-weight:600; color:var(--text-light); cursor:pointer; border-bottom:3px solid transparent; transition:all 0.2s; }
+.page-tab.active { color:var(--green); border-bottom-color:var(--green); }
+.page { display:none; }
+.page.active { display:block; }
+
+.content { padding:16px; padding-bottom:100px; }
+.month-summary { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px; }
+.summary-card { border-radius:16px; padding:14px 16px; box-shadow:var(--shadow); }
+.summary-card.income { background:var(--green-light); border-left:4px solid var(--green); }
+.summary-card.expense { background:var(--red-light); border-left:4px solid var(--red); }
+.summary-card .s-label { font-size:11px; color:var(--text-light); margin-bottom:4px; }
+.summary-card .s-amount { font-size:20px; font-weight:700; }
+.summary-card.income .s-amount { color:var(--green); }
+.summary-card.expense .s-amount { color:var(--red); }
+
+.filter-tabs { display:flex; gap:8px; margin-bottom:12px; overflow-x:auto; padding-bottom:4px; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+.filter-tabs::-webkit-scrollbar { display:none; }
+.filter-tab { padding:6px 14px; border-radius:20px; border:1.5px solid var(--border); background:white; font-family:'Hind Siliguri',sans-serif; font-size:12px; color:var(--text-light); cursor:pointer; white-space:nowrap; transition:all 0.2s; }
+.filter-tab.active { background:var(--green); color:white; border-color:var(--green); }
+
+.section-title { font-size:14px; font-weight:600; color:var(--text); margin-bottom:10px; }
+.transaction-list { display:flex; flex-direction:column; gap:8px; }
+.transaction-item { background:var(--white); border-radius:14px; padding:12px 14px; display:flex; align-items:center; gap:12px; box-shadow:0 2px 8px rgba(0,0,0,0.06); animation:slideIn 0.3s ease; }
+@keyframes slideIn { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
+.t-icon { width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+.t-icon.income { background:var(--green-light); }
+.t-icon.expense { background:var(--red-light); }
+.t-info { flex:1; min-width:0; }
+.t-cat { font-size:13px; font-weight:600; color:var(--text); }
+.t-note { font-size:11px; color:var(--text-light); margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.t-date { font-size:10px; color:var(--text-light); }
+.t-amount { font-size:15px; font-weight:700; flex-shrink:0; }
+.t-amount.income { color:var(--green); }
+.t-amount.expense { color:var(--red); }
+.t-delete { width:28px; height:28px; border-radius:8px; background:#fff0f0; border:none; color:var(--red); font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.empty-state { text-align:center; padding:30px 20px; color:var(--text-light); font-size:13px; background:var(--white); border-radius:16px; }
+.empty-state .e-icon { font-size:36px; margin-bottom:8px; }
+
+.pawna-summary { background:#fff8f0; border:1.5px solid #f0c080; border-radius:16px; padding:14px 16px; margin-bottom:16px; display:flex; align-items:center; justify-content:space-between; box-shadow:0 2px 8px rgba(230,126,34,0.1); }
+.pawna-summary-label { font-size:12px; color:#a0622a; font-weight:500; }
+.pawna-summary-amount { font-size:22px; font-weight:700; color:var(--orange); }
+.pawna-item { background:white; border-radius:14px; padding:14px; box-shadow:0 2px 8px rgba(0,0,0,0.06); border-left:4px solid var(--orange); animation:slideIn 0.3s ease; margin-bottom:8px; }
+#page-pawna { padding-bottom: 90px; }
+#page-pawna { padding-bottom: 90px; }
+.pawna-item.paid { border-left-color:var(--green); opacity:0.75; }
+.pawna-top { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:4px; }
+.pawna-name { font-size:15px; font-weight:700; color:var(--text); }
+.pawna-amount { font-size:16px; font-weight:700; color:var(--orange); flex-shrink:0; margin-left:8px; }
+.pawna-item.paid .pawna-amount { color:var(--green); }
+.pawna-reason { font-size:12px; color:var(--text-light); margin-bottom:4px; line-height:1.4; }
+.pawna-date { font-size:11px; color:var(--text-light); }
+.pawna-actions { display:flex; gap:8px; margin-top:10px; }
+.pawna-paid-btn { flex:1; padding:9px; border:none; border-radius:10px; background:var(--green-light); color:var(--green); font-family:'Hind Siliguri',sans-serif; font-size:13px; font-weight:600; cursor:pointer; }
+.pawna-paid-btn:disabled { opacity:0.5; cursor:not-allowed; background:#eee; color:#999; }
+.pawna-del-btn { width:36px; height:36px; border:none; border-radius:10px; background:#fff0f0; color:var(--red); font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+
+.firebase-bar { background:var(--green-light); border-radius:12px; padding:10px 14px; margin-bottom:14px; display:flex; align-items:center; gap:8px; font-size:12px; color:var(--green); font-weight:500; }
+.firebase-bar.offline { background:#fff3e0; color:#e65100; }
+.firebase-bar.syncing { background:#e3f2fd; color:#1565c0; }
+.fb-dot { width:8px; height:8px; border-radius:50%; background:var(--green); flex-shrink:0; }
+.firebase-bar.offline .fb-dot { background:#e65100; }
+.firebase-bar.syncing .fb-dot { background:#1565c0; animation:pulse 1s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+.bottom-nav { position:fixed; bottom:0; left:0; right:0; background:white; border-top:1px solid var(--border); padding:8px 16px 24px; display:flex; gap:10px; box-shadow:0 -4px 20px rgba(0,0,0,0.08); z-index:100; }
+.nav-btn { flex:1; padding:12px; border-radius:14px; border:none; font-family:'Hind Siliguri',sans-serif; font-size:14px; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; transition:all 0.2s; }
+.nav-btn:active { transform:scale(0.96); }
+.nav-btn.income-btn { background:var(--green-light); color:var(--green); }
+.nav-btn.expense-btn { background:var(--red-light); color:var(--red); }
+.nav-btn.pawna-btn { background:var(--orange-light); color:var(--orange); }
+
+.modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:200; display:none; align-items:flex-end; backdrop-filter:blur(4px); }
+.modal-overlay.active { display:flex; }
+.modal { background:white; border-radius:24px 24px 0 0; padding:20px 16px 40px; width:100%; animation:slideUp 0.3s ease; max-height:90vh; overflow-y:auto; }
+@keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+.modal-handle { width:40px; height:4px; background:#ddd; border-radius:2px; margin:0 auto 16px; }
+.modal-title { font-size:18px; font-weight:700; margin-bottom:20px; text-align:center; }
+.modal-title.income { color:var(--green); }
+.modal-title.expense { color:var(--red); }
+.modal-title.pawna { color:var(--orange); }
+.form-group { margin-bottom:14px; }
+.form-label { font-size:12px; color:var(--text-light); margin-bottom:6px; display:block; font-weight:500; }
+.form-input, .form-select { width:100%; padding:13px 14px; border:1.5px solid var(--border); border-radius:12px; font-family:'Hind Siliguri',sans-serif; font-size:15px; color:var(--text); background:var(--bg); outline:none; transition:border-color 0.2s; appearance:none; -webkit-appearance:none; }
+.form-input:focus, .form-select:focus { border-color:var(--green); background:white; }
+.amount-input { font-size:24px; font-weight:700; text-align:center; }
+.amount-input.income-input:focus { color:var(--green); }
+.amount-input.expense-input:focus { color:var(--red); }
+.amount-input.pawna-input:focus { color:var(--orange); }
+.submit-btn { width:100%; padding:15px; border:none; border-radius:14px; font-family:'Hind Siliguri',sans-serif; font-size:16px; font-weight:700; cursor:pointer; margin-top:6px; transition:all 0.2s; }
+.submit-btn:active { transform:scale(0.98); }
+.submit-btn.income { background:var(--green); color:white; }
+.submit-btn.expense { background:var(--red); color:white; }
+.submit-btn.pawna { background:var(--orange); color:white; }
+.submit-btn.save { background:var(--green); color:white; }
+.cancel-btn { width:100%; padding:12px; background:none; border:none; font-family:'Hind Siliguri',sans-serif; font-size:14px; color:var(--text-light); cursor:pointer; margin-top:8px; }
+.balance-edit-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.balance-edit-item label { font-size:11px; color:var(--text-light); display:block; margin-bottom:4px; }
+.balance-edit-item input { width:100%; padding:10px 12px; border:1.5px solid var(--border); border-radius:10px; font-family:'Hind Siliguri',sans-serif; font-size:14px; background:var(--bg); outline:none; }
+.balance-edit-item input:focus { border-color:var(--green); background:white; }
+
+.toast { position:fixed; top:20px; left:50%; transform:translateX(-50%); background:var(--text); color:white; padding:10px 20px; border-radius:20px; font-size:13px; z-index:999; opacity:0; transition:opacity 0.3s; white-space:nowrap; pointer-events:none; }
+.toast.show { opacity:1; }
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; margin:0; }
+input[type=number] { -moz-appearance:textfield; }
+
+
+/* ── HOME PAGE STYLES ── */
+#homePage { display:flex; flex-direction:column; min-height:100vh; }
+
+.home-header {
+  background: linear-gradient(135deg, #0f5233 0%, #1a7a4a 60%, #2d9e63 100%);
+  padding: 48px 20px 36px;
+  position: relative;
+  overflow: hidden;
+}
+.home-header::before {
+  content: '📱';
+  position: absolute; right: -10px; top: -10px;
+  font-size: 130px; opacity: 0.06;
+}
+.home-header-inner { position: relative; z-index: 1; }
+.home-greeting { color: rgba(255,255,255,0.75); font-size: 13px; margin-bottom: 4px; }
+.home-title { color: white; font-size: 26px; font-weight: 700; margin-bottom: 6px; }
+.home-subtitle { color: rgba(255,255,255,0.65); font-size: 13px; }
+.home-content { flex: 1; padding: 24px 16px 40px; }
+.apps-section-title {
+  font-size: 13px; font-weight: 600; color: #5a7a66;
+  text-transform: uppercase; letter-spacing: 0.8px;
+  margin-bottom: 14px; padding-left: 2px;
+}
+.apps-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+.app-card {
+  background: #fff; border-radius: 20px; padding: 20px 16px;
+  display: flex; flex-direction: column; align-items: flex-start; gap: 10px;
+  box-shadow: 0 4px 20px rgba(26,122,74,0.12);
+  cursor: pointer; border: 1.5px solid transparent;
+  transition: transform 0.18s, box-shadow 0.18s;
+  position: relative; overflow: hidden;
+  -webkit-user-select: none; user-select: none;
+}
+.app-card:active { transform: scale(0.95); }
+.app-card.theme-green:active { border-color: #1a7a4a; background: #e8f5ee; }
+.app-card-icon-wrap {
+  width: 52px; height: 52px; border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px; background: #e8f5ee;
+}
+.app-card-name { font-size: 14px; font-weight: 700; color: #1a2e22; line-height: 1.3; }
+.app-card-desc { font-size: 11px; color: #5a7a66; line-height: 1.4; }
+.app-card-arrow { position: absolute; bottom: 14px; right: 14px; font-size: 18px; color: #c8ddd2; }
+
+.app-card.coming-soon {
+  background: #f8faf9; border: 2px dashed #c8ddd2;
+  box-shadow: none; cursor: default;
+  align-items: center; justify-content: center; min-height: 140px;
+}
+.app-card.coming-soon:active { transform: none; }
+.coming-soon-icon { font-size: 28px; margin-bottom: 6px; opacity: 0.4; }
+.coming-soon-text { font-size: 12px; color: #5a7a66; text-align: center; opacity: 0.7; }
+.home-footer { text-align: center; padding: 0 16px 32px; font-size: 11px; color: #5a7a66; opacity: 0.6; }
+
+/* ── APP VIEW SHELL ── */
+#appView {
+  display: none;
+  position: fixed; inset: 0; z-index: 900;
+  flex-direction: column;
+  background: #f0f4f2;
+}
+#appView.active { display: flex; }
+#appView.active.animate-in { animation: slideInR 0.28s ease; }
+#appView.closing { animation: slideOutR 0.25s ease forwards; }
+@keyframes slideInR { from { transform: translateX(100%); } to { transform: translateX(0); } }
+@keyframes slideOutR { from { transform: translateX(0); } to { transform: translateX(100%); } }
+
+.app-back-bar {
+  background: #0f5233; padding: 10px 14px;
+  display: flex; align-items: center; gap: 10px;
+  flex-shrink: 0; z-index: 901;
+}
+.back-btn {
+  background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25);
+  color: white; width: 36px; height: 36px; border-radius: 10px;
+  font-size: 22px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; font-family: inherit; line-height: 1;
+}
+.back-btn:active { background: rgba(255,255,255,0.3); }
+.app-bar-title { color: white; font-size: 15px; font-weight: 600; font-family: 'Hind Siliguri', sans-serif; }
+
+#appContent {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 0;
+}
+
+/* Override body padding-bottom for app content scroll */
+#appContent body, #hisabApp { padding-bottom: 0; }
+</style>
+</head>
+<body>
+<style>
+#lockScreen {
+  position:fixed; inset:0; z-index:9999;
+  display:none; align-items:center; justify-content:center;
+  font-family:'Hind Siliguri',sans-serif;
+  background: linear-gradient(160deg, #0a3d20 0%, #1a7a4a 50%, #0f5233 100%);
+}
+#lockScreen.visible {
+  display:flex;
+}
+#lockScreen::before {
+  content:''; position:absolute; inset:0;
+  background: radial-gradient(circle at 30% 20%, rgba(255,255,255,0.07) 0%, transparent 60%),
+              radial-gradient(circle at 80% 80%, rgba(0,0,0,0.2) 0%, transparent 50%);
+  pointer-events:none;
+}
+.lock-card {
+  position:relative; z-index:1;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 28px;
+  padding: 40px 28px 36px;
+  width: calc(100% - 48px);
+  max-width: 360px;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.35);
+  text-align: center;
+}
+.lock-icon-wrap {
+  width: 72px; height: 72px;
+  background: linear-gradient(135deg, #1a7a4a, #2d9e63);
+  border-radius: 22px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 32px;
+  margin: 0 auto 20px;
+  box-shadow: 0 8px 24px rgba(26,122,74,0.5);
+}
+.lock-title { color: white; font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+.lock-subtitle { color: rgba(255,255,255,0.6); font-size: 13px; margin-bottom: 28px; }
+.lock-input-wrap { position: relative; margin-bottom: 14px; }
+.lock-input-wrap input {
+  width: 100%; padding: 15px 50px 15px 18px;
+  border: 1.5px solid rgba(255,255,255,0.2); border-radius: 14px;
+  background: rgba(255,255,255,0.1); color: white;
+  font-family: 'Hind Siliguri', sans-serif; font-size: 16px;
+  outline: none; transition: border-color 0.2s, background 0.2s; letter-spacing: 3px;
+}
+.lock-input-wrap input::placeholder { color: rgba(255,255,255,0.4); letter-spacing: 0; }
+.lock-input-wrap input:focus { border-color: rgba(255,255,255,0.5); background: rgba(255,255,255,0.15); }
+.lock-eye-btn {
+  position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; color: rgba(255,255,255,0.5);
+  font-size: 18px; cursor: pointer; padding: 4px; line-height: 1;
+  transition: color 0.2s; display: flex; align-items: center; justify-content: center;
+}
+.lock-eye-btn:hover { color: rgba(255,255,255,0.9); }
+.lock-submit-btn {
+  width: 100%; padding: 15px; border: none; border-radius: 14px;
+  background: linear-gradient(135deg, #1a7a4a, #2d9e63); color: white;
+  font-family: 'Hind Siliguri', sans-serif; font-size: 16px; font-weight: 700;
+  cursor: pointer; box-shadow: 0 6px 20px rgba(26,122,74,0.45);
+  transition: transform 0.15s, box-shadow 0.15s; margin-top: 4px;
+}
+.lock-submit-btn:active { transform: scale(0.97); }
+.lock-error { color: #ffb3b3; font-size: 12px; margin-top: 14px; min-height: 18px; font-weight: 500; }
+.lock-footer { color: rgba(255,255,255,0.25); font-size: 11px; margin-top: 24px; }
+</style>
+<div id="lockScreen">
+  <div class="lock-card">
+    <div class="lock-icon-wrap" id="lockIconWrap" style="overflow:hidden;position:relative;">
+      <img id="lockLogoImg" src="" alt="" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:22px;"/>
+      <span id="lockLogoEmoji">🔐</span>
+    </div>
+    <input type="file" id="logoFileInput" accept="image/*" style="display:none;" onchange="handleLogoUpload(event)"/>
+    <div class="lock-title">আমার অ্যাপস</div>
+    <div class="lock-subtitle">প্রবেশ করতে পাসওয়ার্ড দিন</div>
+    <div class="lock-input-wrap">
+      <input id="lockPass" type="password" inputmode="numeric" placeholder="পাসওয়ার্ড লিখুন" />
+      <button class="lock-eye-btn" onclick="togglePass()" type="button">👁</button>
+    </div>
+    <button class="lock-submit-btn" onclick="checkPassword()">প্রবেশ করুন →</button>
+    <div class="lock-error" id="lockError"></div>
+    <div class="lock-footer">Developed by Nobab</div>
+  </div>
+</div>
+<!-- ══ HOME PAGE ══ -->
+<div id="homePage">
+<div class="home-header">
+<div class="home-header-inner">
+<div class="home-greeting" id="homeGreeting">আস্সালামু আলাইকুম 👋</div>
+<div class="home-title">আমার অ্যাপস</div>
+<div class="home-subtitle" id="homeDate"></div>
+<div id="homeTime" style="display:none;"></div>
+<!-- সময় ও আবহাওয়া -->
+<div style="margin-top:14px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+  <div style="display:flex;align-items:baseline;gap:5px;">
+    <span id="homeTimeBig" style="color:white;font-size:32px;font-weight:700;letter-spacing:1px;text-shadow:0 2px 8px rgba(0,0,0,0.25);">--:--</span>
+    <span id="homeAmPm" style="color:rgba(255,255,255,0.78);font-size:15px;font-weight:600;align-self:flex-end;margin-bottom:3px;"></span>
+  </div>
+  <div style="display:flex;align-items:center;gap:7px;background:rgba(255,255,255,0.13);border:1px solid rgba(255,255,255,0.22);border-radius:40px;padding:7px 14px;">
+    <span id="homeTempIcon" style="font-size:18px;">🌡️</span>
+    <div style="line-height:1.25;">
+      <div id="homeTempVal" style="color:white;font-size:15px;font-weight:700;">লোড হচ্ছে...</div>
+      <div id="homeTempDesc" style="color:rgba(255,255,255,0.6);font-size:10px;"></div>
+    </div>
+  </div>
+</div>
+<div style="margin-top:5px;display:flex;align-items:center;gap:6px;">
+  <span id="homeSec" style="color:rgba(255,255,255,0.48);font-size:11px;font-variant-numeric:tabular-nums;"></span>
+  <span style="color:rgba(255,255,255,0.22);font-size:10px;">•</span>
+  <span id="homeWeekDay" style="color:rgba(255,255,255,0.6);font-size:11px;"></span>
+</div>
+</div>
+</div>
+<div class="home-content">
+<div class="apps-section-title">সব অ্যাপ</div>
+<div class="apps-grid">
+<div class="app-card theme-green" onclick="openApp('hisab')">
+<div class="app-card-icon-wrap">📒</div>
+<div class="app-card-name">হিসাবের খাতা</div>
+<div class="app-card-desc">আয়, খরচ ও পাওনার হিসাব</div>
+<span class="app-card-arrow">›</span>
+</div>
+<div class="app-card coming-soon">
+<div class="coming-soon-icon">➕</div>
+<div class="coming-soon-text">আরও অ্যাপ<br/>আসছে শীঘ্রই</div>
+</div>
+</div>
+</div>
+<div style="padding:0 16px 16px;display:flex;flex-direction:column;gap:10px;">
+  <button onclick="triggerLogoUpload()" style="background:#e8f5ee;border:1.5px solid #1a7a4a;color:#1a7a4a;padding:10px 22px;border-radius:20px;font-family:'Hind Siliguri',sans-serif;font-size:13px;font-weight:600;cursor:pointer;width:100%;">🖼️ লক স্ক্রিনের লোগো পরিবর্তন করুন</button>
+  <button onclick="openChangePassword()" style="background:#e8f5ee;border:1.5px solid #1a7a4a;color:#1a7a4a;padding:10px 22px;border-radius:20px;font-family:'Hind Siliguri',sans-serif;font-size:13px;font-weight:600;cursor:pointer;width:100%;">🔑 পাসওয়ার্ড পরিবর্তন করুন</button>
+</div>
+
+<!-- Password Change Modal -->
+<div id="changePwModal" style="display:none;position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);align-items:center;justify-content:center;">
+  <div style="background:white;border-radius:24px;padding:28px 22px;width:calc(100% - 48px);max-width:340px;box-shadow:0 24px 64px rgba(0,0,0,0.25);">
+    <div style="font-size:18px;font-weight:700;color:#1a2e22;text-align:center;margin-bottom:20px;">🔑 পাসওয়ার্ড পরিবর্তন</div>
+    <div style="margin-bottom:12px;">
+      <label style="font-size:12px;color:#5a7a66;display:block;margin-bottom:5px;font-weight:500;">বর্তমান পাসওয়ার্ড</label>
+      <input id="currentPw" type="password" inputmode="numeric" placeholder="বর্তমান পাসওয়ার্ড দিন" style="width:100%;padding:12px 14px;border:1.5px solid #c8ddd2;border-radius:12px;font-family:'Hind Siliguri',sans-serif;font-size:15px;outline:none;background:#f0f4f2;"/>
+    </div>
+    <div style="margin-bottom:12px;">
+      <label style="font-size:12px;color:#5a7a66;display:block;margin-bottom:5px;font-weight:500;">নতুন পাসওয়ার্ড</label>
+      <input id="newPw" type="password" inputmode="numeric" placeholder="নতুন পাসওয়ার্ড দিন" style="width:100%;padding:12px 14px;border:1.5px solid #c8ddd2;border-radius:12px;font-family:'Hind Siliguri',sans-serif;font-size:15px;outline:none;background:#f0f4f2;"/>
+    </div>
+    <div style="margin-bottom:18px;">
+      <label style="font-size:12px;color:#5a7a66;display:block;margin-bottom:5px;font-weight:500;">নতুন পাসওয়ার্ড নিশ্চিত করুন</label>
+      <input id="confirmPw" type="password" inputmode="numeric" placeholder="আবার নতুন পাসওয়ার্ড দিন" style="width:100%;padding:12px 14px;border:1.5px solid #c8ddd2;border-radius:12px;font-family:'Hind Siliguri',sans-serif;font-size:15px;outline:none;background:#f0f4f2;"/>
+    </div>
+    <div id="pwChangeError" style="color:#d63031;font-size:12px;margin-bottom:10px;min-height:18px;text-align:center;"></div>
+    <button onclick="doChangePassword()" style="width:100%;padding:14px;border:none;border-radius:14px;background:linear-gradient(135deg,#1a7a4a,#2d9e63);color:white;font-family:'Hind Siliguri',sans-serif;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:8px;">সেভ করুন</button>
+    <button onclick="closeChangePassword()" style="width:100%;padding:11px;border:none;background:none;font-family:'Hind Siliguri',sans-serif;font-size:13px;color:#5a7a66;cursor:pointer;">বাতিল করুন</button>
+  </div>
+</div>
+<div class="home-footer">Version 1.0 • Developed by Nobab</div>
+</div>
+<!-- ══ APP VIEW SHELL ══ -->
+<div id="appView">
+<div class="app-back-bar">
+<button class="back-btn" onclick="closeApp()">‹</button>
+<span class="app-bar-title" id="appBarTitle"></span>
+</div>
+<div id="appContent">
+<div id="hisabApp">
+<!-- Install Banner -->
+<div id="installBanner">
+<span class="install-text">📲 হোম স্ক্রিনে অ্যাপ হিসেবে যোগ করুন!</span>
+<button class="install-btn" id="installBtn">ইনস্টল করুন</button>
+<button class="install-close" id="installClose">✕</button>
+</div>
+<!-- Header -->
+<div class="header">
+<div class="header-top">
+<div>
+<h1>📒 আমার হিসাবের খাতা</h1>
+<div class="header-subtitle" id="currentDate"></div>
+</div>
+
+</div>
+<div class="balance-grid" id="walletBalanceGrid">
+<!-- Dynamic wallets will be rendered here -->
+<div class="balance-card total"><div class="balance-label">💎 মোট সম্পদ</div><div class="balance-amount" id="totalBalance">৳ ০</div></div>
+</div>
+</div>
+<!-- Page Tabs -->
+<div class="page-tabs">
+<button class="page-tab active" onclick="switchPage('hisab',this)">📋 হিসাব</button>
+<button class="page-tab" onclick="switchPage('pawna',this)">🤝 পাওনা</button>
+</div>
+<!-- Content -->
+<div class="content">
+
+<div class="firebase-bar syncing" id="firebaseBar">
+<div class="fb-dot"></div>
+<span id="firebaseStatus">Firebase কানেক্ট হচ্ছে...</span>
+</div>
+<!-- HISAB PAGE -->
+<div class="page active" id="page-hisab">
+<div class="month-summary">
+<div class="summary-card income"><div class="s-label">✅ এই মাসের আয়</div><div class="s-amount" id="monthIncome">৳ ০</div></div>
+<div class="summary-card expense"><div class="s-label">❌ এই মাসের খরচ</div><div class="s-amount" id="monthExpense">৳ ০</div></div>
+</div>
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;position:relative;">
+  <div class="section-title" style="margin-bottom:0;">📋 লেনদেনের তালিকা</div>
+  <div style="display:flex;gap:6px;align-items:center;">
+    <div style="position:relative;">
+      <button id="txFilterBtn" onclick="window.toggleTxFilter()" style="padding:5px 10px;border:1.5px solid #1a7a4a;border-radius:8px;background:white;color:#1a7a4a;font-family:'Hind Siliguri',sans-serif;font-size:11px;font-weight:700;cursor:pointer;">🔽 <span id="txFilterLabel">সব</span></button>
+      <div id="txFilterDropdown" style="display:none;position:fixed;background:white;border:1.5px solid #1a7a4a;border-radius:10px;box-shadow:0 6px 24px rgba(0,0,0,0.18);z-index:9999;min-width:120px;">
+        <div onclick="window.setTxFilter('all','সব')" style="padding:9px 14px;font-family:'Hind Siliguri',sans-serif;font-size:13px;cursor:pointer;color:#1a2e22;border-bottom:1px solid #eee;">📋 সব</div>
+        <div onclick="window.setTxFilter('income','✅ আয়')" style="padding:9px 14px;font-family:'Hind Siliguri',sans-serif;font-size:13px;cursor:pointer;color:#1a7a4a;border-bottom:1px solid #eee;">✅ আয়</div>
+        <div onclick="window.setTxFilter('expense','❌ খরচ')" style="padding:9px 14px;font-family:'Hind Siliguri',sans-serif;font-size:13px;cursor:pointer;color:#d63031;">❌ খরচ</div>
+      </div>
+    </div>
+    <button onclick="window.downloadPDF('tx')" style="padding:5px 10px;border:1.5px solid #1a7a4a;border-radius:8px;background:white;color:#1a7a4a;font-family:'Hind Siliguri',sans-serif;font-size:11px;font-weight:700;cursor:pointer;">⬇ PDF</button>
+  </div>
+</div>
+<div class="transaction-list" id="transactionList">
+<div class="empty-state"><div class="e-icon">📝</div>লোড হচ্ছে...</div>
+</div>
+</div>
+<!-- PAWNA PAGE -->
+<div class="page" id="page-pawna">
+<div class="pawna-summary">
+<div>
+<div class="pawna-summary-label">⏳ এখনো পাওনা আছে</div>
+<div class="pawna-summary-amount" id="totalPawna">৳ ০</div>
+</div>
+<div style="text-align:right">
+<div class="pawna-summary-label">✅ আদায় হয়েছে</div>
+<div id="totalPaid" style="font-size:18px;font-weight:700;color:var(--green)">৳ ০</div>
+</div>
+</div>
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;position:relative;">
+  <div class="section-title" style="margin-bottom:0;">🤝 পাওনার তালিকা</div>
+  <div style="display:flex;gap:6px;align-items:center;">
+    <div style="position:relative;">
+      <button id="pawnaFilterBtn" onclick="window.togglePawnaFilter()" style="padding:5px 10px;border:1.5px solid #e67e22;border-radius:8px;background:white;color:#e67e22;font-family:'Hind Siliguri',sans-serif;font-size:11px;font-weight:700;cursor:pointer;">🔽 <span id="pawnaFilterLabel">সব</span></button>
+      <div id="pawnaFilterDropdown" style="display:none;position:fixed;background:white;border:1.5px solid #e67e22;border-radius:10px;box-shadow:0 6px 24px rgba(0,0,0,0.18);z-index:9999;min-width:120px;">
+        <div onclick="window.setPawnaFilter('all','সব')" style="padding:9px 14px;font-family:'Hind Siliguri',sans-serif;font-size:13px;cursor:pointer;color:#1a2e22;border-bottom:1px solid #eee;">📋 সব</div>
+        <div onclick="window.setPawnaFilter('unpaid','⏳ বাকি')" style="padding:9px 14px;font-family:'Hind Siliguri',sans-serif;font-size:13px;cursor:pointer;color:#e67e22;border-bottom:1px solid #eee;">⏳ বাকি</div>
+        <div onclick="window.setPawnaFilter('paid','✅ আদায়')" style="padding:9px 14px;font-family:'Hind Siliguri',sans-serif;font-size:13px;cursor:pointer;color:#1a7a4a;">✅ আদায়</div>
+      </div>
+    </div>
+    <button onclick="window.downloadPDF('pawna')" style="padding:5px 10px;border:1.5px solid #e67e22;border-radius:8px;background:white;color:#e67e22;font-family:'Hind Siliguri',sans-serif;font-size:11px;font-weight:700;cursor:pointer;">⬇ PDF</button>
+  </div>
+</div>
+<div id="pawnaList">
+<div class="empty-state"><div class="e-icon">🤝</div>লোড হচ্ছে...</div>
+</div>
+</div>
+</div>
+<!-- Bottom Navs -->
+<div class="bottom-nav" id="bottomNavHisab">
+<button class="nav-btn income-btn" onclick="openModal('income')">✅ আয়</button>
+<button class="nav-btn expense-btn" onclick="openModal('expense')">❌ খরচ</button>
+</div>
+<div class="bottom-nav" id="bottomNavPawna" style="display:none">
+<button class="nav-btn pawna-btn" onclick="openPawnaModal()" style="flex:1">🤝 নতুন পাওনা যোগ করো</button>
+</div>
+<!-- Tx Modal -->
+<div class="modal-overlay" id="txModal">
+<div class="modal">
+<div class="modal-handle"></div>
+<div class="modal-title" id="modalTitle"></div>
+<div class="form-group">
+<label class="form-label">পরিমাণ (টাকা) *</label>
+<input class="form-input amount-input" id="txAmount" inputmode="numeric" placeholder="০" type="number"/>
+</div>
+<div class="form-group">
+<label class="form-label">ক্যাটাগরি *</label>
+<select class="form-select" id="txCategory"></select>
+</div>
+<div class="form-group">
+<label class="form-label" id="walletSelectLabel">💰 কোন ওয়ালেটে যাবে? *</label>
+<select class="form-select" id="txWallet"></select>
+</div>
+<div class="form-group">
+<label class="form-label">নোট (ঐচ্ছিক)</label>
+<input class="form-input" id="txNote" placeholder="যেমন: মাসের বাজার" type="text"/>
+</div>
+<button class="submit-btn" id="submitBtn" onclick="submitTransaction()"></button>
+<button class="cancel-btn" onclick="closeModal()">বাতিল করো</button>
+</div>
+</div>
+<!-- Balance / Wallet Modal -->
+<div class="modal-overlay" id="balanceModal">
+<div class="modal">
+<div class="modal-handle"></div>
+<div class="modal-title" style="color:var(--green)">💰 ওয়ালেট ম্যানেজমেন্ট</div>
+
+<!-- Tabs inside modal -->
+<div style="display:flex;gap:8px;margin-bottom:16px;">
+  <button id="walletTabBalance" onclick="switchWalletTab('balance')" style="flex:1;padding:9px;border-radius:10px;border:1.5px solid var(--green);background:var(--green);color:white;font-family:'Hind Siliguri',sans-serif;font-size:13px;font-weight:600;cursor:pointer;">💰 ব্যালেন্স</button>
+  <button id="walletTabManage" onclick="switchWalletTab('manage')" style="flex:1;padding:9px;border-radius:10px;border:1.5px solid var(--border);background:white;color:var(--text-light);font-family:'Hind Siliguri',sans-serif;font-size:13px;font-weight:600;cursor:pointer;">⚙️ ওয়ালেট</button>
+</div>
+
+<!-- Balance Tab -->
+<div id="walletTabBalanceContent">
+  <div class="balance-edit-grid" id="walletBalanceEditGrid">
+    <!-- Dynamic inputs -->
+  </div>
+  <button class="submit-btn save" onclick="saveBalance()" style="margin-top:16px">সেভ করো</button>
+  <button class="cancel-btn" onclick="closeBalanceModal()">বাতিল করো</button>
+</div>
+
+<!-- Manage Wallets Tab -->
+<div id="walletTabManageContent" style="display:none;">
+  <div id="walletManageList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;">
+    <!-- Dynamic wallet list -->
+  </div>
+  <!-- Add New Wallet -->
+  <div style="background:var(--green-light);border-radius:14px;padding:14px;margin-bottom:8px;">
+    <div style="font-size:12px;color:var(--green);font-weight:600;margin-bottom:10px;">➕ নতুন ওয়ালেট যোগ করো</div>
+    <div style="display:flex;gap:8px;margin-bottom:8px;">
+      <select id="newWalletEmoji" style="width:64px;padding:10px 6px;border:1.5px solid var(--border);border-radius:10px;font-size:18px;background:white;outline:none;text-align:center;">
+        <option>💵</option><option>🏦</option><option>📱</option><option>💳</option><option>👛</option><option>🏧</option><option>💰</option><option>🪙</option>
+      </select>
+      <input id="newWalletName" type="text" placeholder="ওয়ালেটের নাম (যেমন: Rocket)" style="flex:1;padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;font-family:'Hind Siliguri',sans-serif;font-size:14px;background:white;outline:none;"/>
+    </div>
+    <button onclick="addNewWallet()" style="width:100%;padding:10px;border:none;border-radius:10px;background:var(--green);color:white;font-family:'Hind Siliguri',sans-serif;font-size:14px;font-weight:600;cursor:pointer;">➕ যোগ করো</button>
+  </div>
+  <button class="cancel-btn" onclick="closeBalanceModal()">বন্ধ করো</button>
+</div>
+</div>
+</div>
+<!-- Pawna Modal -->
+<div class="modal-overlay" id="pawnaModal">
+<div class="modal">
+<div class="modal-handle"></div>
+<div class="modal-title pawna">🤝 পাওনা যোগ করো</div>
+<div class="form-group">
+<label class="form-label">কার কাছ থেকে পাবে? (নাম) *</label>
+<input class="form-input" id="pawnaName" placeholder="যেমন: রফিক ভাই" type="text"/>
+</div>
+<div class="form-group">
+<label class="form-label">কত টাকা পাবে? *</label>
+<input class="form-input amount-input pawna-input" id="pawnaAmount" inputmode="numeric" placeholder="০" type="number"/>
+</div>
+<div class="form-group">
+<label class="form-label">কী কারণে পাবে? *</label>
+<input class="form-input" id="pawnaReason" placeholder="যেমন: ধার দিয়েছিলাম" type="text"/>
+</div>
+<div class="form-group">
+<label class="form-label">কবে দেওয়ার কথা? (ঐচ্ছিক)</label>
+<input class="form-input" id="pawnaDueDate" type="date"/>
+</div>
+<button class="submit-btn pawna" onclick="submitPawna()">পাওনা সেভ করো</button>
+<button class="cancel-btn" onclick="closePawnaModal()">বাতিল করো</button>
+</div>
+</div>
+<div class="toast" id="toast"></div>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, doc, setDoc, onSnapshot, collection, addDoc, deleteDoc, updateDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAImgBiE4yZB7Dg1X5yN2qZo4XPZrN4f4E",
+  authDomain: "my-hisab-2026.firebaseapp.com",
+  projectId: "my-hisab-2026",
+  storageBucket: "my-hisab-2026.firebasestorage.app",
+  messagingSenderId: "259799576231",
+  appId: "1:259799576231:web:23b7d5341da406d4657582"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const USER_ID = "main_user";
+
+const incomeCategories = ['বেতন','ফ্রিল্যান্স','ব্যবসা','বোনাস','উপহার','অন্যান্য আয়'];
+const expenseCategories = ['খাওয়া-দাওয়া','যাতায়াত','বাসা ভাড়া','বিদ্যুৎ/গ্যাস','শিক্ষা','স্বাস্থ্য','পোশাক','বিনোদন','মোবাইল রিচার্জ','অন্যান্য খরচ'];
+const categoryIcons = {'বেতন':'💼','ফ্রিল্যান্স':'💻','ব্যবসা':'🏪','বোনাস':'🎁','উপহার':'🎀','অন্যান্য আয়':'💰','খাওয়া-দাওয়া':'🍽️','যাতায়াত':'🚌','বাসা ভাড়া':'🏠','বিদ্যুৎ/গ্যাস':'💡','শিক্ষা':'📚','স্বাস্থ্য':'🏥','পোশাক':'👕','বিনোদন':'🎬','মোবাইল রিচার্জ':'📱','অন্যান্য খরচ':'🛒'};
+
+let state = { 
+  balances:{cash:0,bank:0,bkash:0,nagad:0}, 
+  wallets: null, // null = not loaded yet, will use defaults
+  transactions:[], 
+  pawnas:[] 
+};
+
+// Default wallets
+const DEFAULT_WALLETS = [
+  {id:'cash', emoji:'💵', name:'নগদ', amount:0},
+  {id:'bank', emoji:'🏦', name:'ব্যাংক', amount:0},
+  {id:'bkash', emoji:'📱', name:'bKash', amount:0},
+  {id:'nagad', emoji:'📱', name:'Nagad', amount:0},
+];
+let currentType='income', currentFilter='all', currentPawnaFilter='all', currentPage='hisab';
+
+// ── Date ──
+const months=['জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর'];
+const d=new Date();
+document.getElementById('currentDate').textContent=`${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+
+// ── Firebase Status ──
+function setStatus(type,msg){
+  const bar=document.getElementById('firebaseBar');
+  const txt=document.getElementById('firebaseStatus');
+  bar.className='firebase-bar '+(type||'');
+  txt.textContent=msg;
+}
+
+// ── Init ──
+setStatus('syncing','Firebase কানেক্ট হচ্ছে...');
+
+onSnapshot(doc(db,"users",USER_ID),(snap)=>{
+  if(snap.exists()){
+    const data = snap.data();
+    // Support old balances format + new wallets format
+    if(data.wallets && Array.isArray(data.wallets)){
+      state.wallets = data.wallets;
+    } else {
+      // Migrate from old format
+      const old = data.balances||{cash:0,bank:0,bkash:0,nagad:0};
+      state.wallets = [
+        {id:'cash', emoji:'💵', name:'নগদ', amount: old.cash||0},
+        {id:'bank', emoji:'🏦', name:'ব্যাংক', amount: old.bank||0},
+        {id:'bkash', emoji:'📱', name:'bKash', amount: old.bkash||0},
+        {id:'nagad', emoji:'📱', name:'Nagad', amount: old.nagad||0},
+      ];
+    }
+    // Keep legacy balances for backward compat
+    state.balances = data.balances||{cash:0,bank:0,bkash:0,nagad:0};
+  } else {
+    state.wallets = JSON.parse(JSON.stringify(DEFAULT_WALLETS));
+  }
+  setStatus('','☁️ Firebase কানেক্টেড — ডেটা অটো সেভ হচ্ছে');
+  render();
+},()=>setStatus('offline','⚠️ অফলাইন — ইন্টারনেট চেক করো'));
+
+const txQ=query(collection(db,"users",USER_ID,"transactions"),orderBy("date","desc"));
+onSnapshot(txQ,(snap)=>{
+  state.transactions=snap.docs.map(d=>({id:d.id,...d.data()}));
+  render();
+});
+
+const pawnaQ=query(collection(db,"users",USER_ID,"pawnas"),orderBy("createdAt","desc"));
+onSnapshot(pawnaQ,(snap)=>{
+  state.pawnas=snap.docs.map(d=>({id:d.id,...d.data()}));
+  renderPawna();
+});
+
+// ── Format ──
+function fmt(n){ return '৳ '+Number(n||0).toLocaleString('bn-BD'); }
+
+// ── Render ──
+function render(){
+  const wallets = state.wallets || JSON.parse(JSON.stringify(DEFAULT_WALLETS));
+  
+  // Render balance cards in header
+  const grid = document.getElementById('walletBalanceGrid');
+  const totalCard = `<div class="balance-card total"><div class="balance-label">💎 মোট সম্পদ</div><div class="balance-amount" id="totalBalance">৳ ০</div></div>`;
+  grid.innerHTML = wallets.map(w =>
+    `<div class="balance-card" onclick="openBalanceEdit()">
+      <div class="balance-label">${w.emoji} ${w.name}</div>
+      <div class="balance-amount">৳ ${Number(w.amount||0).toLocaleString('bn-BD')}</div>
+      <div class="edit-hint">ট্যাপ করে এডিট করো</div>
+    </div>`
+  ).join('') + totalCard;
+  
+  const total = wallets.reduce((s,w)=>s+(w.amount||0),0);
+  document.getElementById('totalBalance').textContent = fmt(total);
+
+  const now=new Date(), mo=now.getMonth(), yr=now.getFullYear();
+  const mTx=state.transactions.filter(t=>{const d=new Date(t.date);return d.getMonth()===mo&&d.getFullYear()===yr;});
+  document.getElementById('monthIncome').textContent=fmt(mTx.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0));
+  document.getElementById('monthExpense').textContent=fmt(mTx.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0));
+
+  let filtered=[...state.transactions];
+  if(currentFilter!=='all') filtered=filtered.filter(t=>t.type===currentFilter);
+  const list=document.getElementById('transactionList');
+  if(!filtered.length){
+    list.innerHTML='<div class="empty-state"><div class="e-icon">📝</div>এখনো কোনো হিসাব নেই<br>নিচের বাটন থেকে যোগ করো</div>';
+  } else {
+    list.innerHTML=filtered.map(t=>{
+      const icon=categoryIcons[t.category]||(t.type==='income'?'💰':'🛒');
+      const dd=new Date(t.date);
+      const walletTag = t.walletName ? `<span style="font-size:10px;color:#5a7a66;background:#e8f5ee;padding:1px 6px;border-radius:8px;margin-left:4px;">${t.walletName}</span>` : '';
+      return `<div class="transaction-item">
+        <div class="t-icon ${t.type}">${icon}</div>
+        <div class="t-info"><div class="t-cat">${t.category}${walletTag}</div><div class="t-note">${t.note||'—'}</div><div class="t-date">${dd.getDate()}/${dd.getMonth()+1}/${dd.getFullYear()}</div></div>
+        <div class="t-amount ${t.type}">${t.type==='income'?'+':'-'}${fmt(t.amount)}</div>
+        <button class="t-delete" onclick="window._deleteTx('${t.id}')">✕</button>
+      </div>`;
+    }).join('');
+  }
+  renderPawna();
+}
+
+function renderPawna(){
+  const pawnas=state.pawnas||[];
+  let filtered=[...pawnas];
+  if(currentPawnaFilter==='unpaid') filtered=filtered.filter(p=>!p.paid);
+  else if(currentPawnaFilter==='paid') filtered=filtered.filter(p=>p.paid);
+
+  document.getElementById('totalPawna').textContent=fmt(pawnas.filter(p=>!p.paid).reduce((s,p)=>s+p.amount,0));
+  document.getElementById('totalPaid').textContent=fmt(pawnas.filter(p=>p.paid).reduce((s,p)=>s+p.amount,0));
+
+  const list=document.getElementById('pawnaList');
+  if(!filtered.length){
+    list.innerHTML='<div class="empty-state"><div class="e-icon">🤝</div>কোনো পাওনা নেই<br>নিচের বাটন থেকে যোগ করো</div>';
+    return;
+  }
+  list.innerHTML=filtered.map(p=>{
+    const dd=new Date(p.createdAt);
+    const dueStr=p.dueDate?`📅 দেওয়ার কথা: ${p.dueDate}`:'';
+    return `<div class="pawna-item ${p.paid?'paid':''}">
+      <div class="pawna-top"><div class="pawna-name">👤 ${p.name}</div><div class="pawna-amount">${fmt(p.amount)}</div></div>
+      <div class="pawna-reason">📝 ${p.reason}</div>
+      <div class="pawna-date">যোগ: ${dd.getDate()}/${dd.getMonth()+1}/${dd.getFullYear()} ${dueStr}</div>
+      <div class="pawna-actions">
+        <button class="pawna-paid-btn" onclick="window._markPaid('${p.id}')" ${p.paid?'disabled':''}>
+          ${p.paid?'✅ আদায় হয়েছে':'✅ আদায় চিহ্নিত করো'}
+        </button>
+        <button class="pawna-del-btn" onclick="window._deletePawna('${p.id}')">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── Actions ──
+window._deleteTx=async(id)=>{
+  if(!confirm('তুমি কি নিশ্চিত?')) return; if(!confirm('এটা স্থায়ীভাবে ডিলিট হবে!')) return;
+  await deleteDoc(doc(db,"users",USER_ID,"transactions",id));
+  showToast('মুছে ফেলা হয়েছে');
+};
+
+window.submitTransaction=async()=>{
+  const amount=parseFloat(document.getElementById('txAmount').value);
+  if(!amount||amount<=0){showToast('টাকার পরিমাণ দাও!');return;}
+  const walletId = document.getElementById('txWallet').value;
+  const wallets = state.wallets || [];
+  const wallet = wallets.find(w=>w.id===walletId);
+  if(!wallet){showToast('ওয়ালেট সিলেক্ট করো!');return;}
+  if(currentType==='expense' && wallet.amount < amount){
+    showToast('❌ এই ওয়ালেটে পর্যাপ্ত টাকা নেই!');return;
+  }
+  setStatus('syncing','সেভ হচ্ছে...');
+  try {
+    await addDoc(collection(db,"users",USER_ID,"transactions"),{
+      type:currentType, amount,
+      category:document.getElementById('txCategory').value,
+      note:document.getElementById('txNote').value,
+      walletId: walletId,
+      walletName: wallet.name,
+      date:new Date().toISOString()
+    });
+    // Update wallet balance
+    if(currentType==='income') wallet.amount = (wallet.amount||0) + amount;
+    else wallet.amount = (wallet.amount||0) - amount;
+    state.wallets = wallets;
+    await setDoc(doc(db,"users",USER_ID),{wallets:state.wallets},{merge:true});
+    closeModal();
+    showToast(currentType==='income'?'✅ আয় যোগ হয়েছে!':'❌ খরচ যোগ হয়েছে!');
+    setStatus('','☁️ Firebase কানেক্টেড — ডেটা অটো সেভ হচ্ছে');
+    render();
+  } catch(e){showToast('❌ সেভ হয়নি!');setStatus('offline','⚠️ অফলাইন');}
+};
+
+window.saveBalance=async()=>{
+  const wallets = state.wallets || JSON.parse(JSON.stringify(DEFAULT_WALLETS));
+  wallets.forEach(w => {
+    const inp = document.getElementById('walletInput_'+w.id);
+    if(inp) w.amount = parseFloat(inp.value)||0;
+  });
+  state.wallets = wallets;
+  try {
+    await setDoc(doc(db,"users",USER_ID),{wallets: state.wallets},{merge:true});
+    closeBalanceModal();
+    showToast('✅ ব্যালেন্স আপডেট হয়েছে!');
+    render();
+  } catch(e){showToast('❌ সেভ হয়নি!');}
+};
+
+window.switchWalletTab=function(tab){
+  if(tab==='balance'){
+    document.getElementById('walletTabBalanceContent').style.display='';
+    document.getElementById('walletTabManageContent').style.display='none';
+    document.getElementById('walletTabBalance').style.background='var(--green)';
+    document.getElementById('walletTabBalance').style.color='white';
+    document.getElementById('walletTabBalance').style.borderColor='var(--green)';
+    document.getElementById('walletTabManage').style.background='white';
+    document.getElementById('walletTabManage').style.color='var(--text-light)';
+    document.getElementById('walletTabManage').style.borderColor='var(--border)';
+  } else {
+    document.getElementById('walletTabBalanceContent').style.display='none';
+    document.getElementById('walletTabManageContent').style.display='';
+    document.getElementById('walletTabManage').style.background='var(--green)';
+    document.getElementById('walletTabManage').style.color='white';
+    document.getElementById('walletTabManage').style.borderColor='var(--green)';
+    document.getElementById('walletTabBalance').style.background='white';
+    document.getElementById('walletTabBalance').style.color='var(--text-light)';
+    document.getElementById('walletTabBalance').style.borderColor='var(--border)';
+    renderWalletManageList();
+  }
+};
+
+function renderWalletManageList(){
+  const wallets = state.wallets || JSON.parse(JSON.stringify(DEFAULT_WALLETS));
+  const container = document.getElementById('walletManageList');
+  container.innerHTML = wallets.map((w,i) => `
+    <div style="background:white;border:1.5px solid var(--border);border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:8px;">
+      <span style="font-size:20px;">${w.emoji}</span>
+      <input value="${w.name}" id="walletNameEdit_${w.id}" 
+        style="flex:1;border:1.5px solid var(--border);border-radius:8px;padding:7px 10px;font-family:'Hind Siliguri',sans-serif;font-size:14px;outline:none;background:var(--bg);"
+        placeholder="ওয়ালেটের নাম"/>
+      <button onclick="saveWalletName('${w.id}')" 
+        style="padding:7px 12px;border:none;border-radius:8px;background:var(--green-light);color:var(--green);font-family:'Hind Siliguri',sans-serif;font-size:12px;font-weight:700;cursor:pointer;">✔</button>
+      ${wallets.length>1?`<button onclick="deleteWallet('${w.id}')" 
+        style="width:32px;height:32px;border:none;border-radius:8px;background:#fff0f0;color:var(--red);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">✕</button>`:''}
+    </div>
+  `).join('');
+}
+
+window.saveWalletName=async function(wid){
+  const wallets = state.wallets || [];
+  const w = wallets.find(x=>x.id===wid);
+  if(!w) return;
+  const inp = document.getElementById('walletNameEdit_'+wid);
+  const newName = inp ? inp.value.trim() : '';
+  if(!newName){showToast('নাম লিখো!');return;}
+  w.name = newName;
+  state.wallets = wallets;
+  try {
+    await setDoc(doc(db,"users",USER_ID),{wallets:state.wallets},{merge:true});
+    showToast('✅ নাম পরিবর্তন হয়েছে!');
+    render();
+    renderWalletManageList();
+  } catch(e){showToast('❌ সেভ হয়নি!');}
+};
+
+window.deleteWallet=async function(wid){
+  if(!confirm('এই ওয়ালেটটি মুছে ফেলবে?')) return;
+  state.wallets = (state.wallets||[]).filter(w=>w.id!==wid);
+  try {
+    await setDoc(doc(db,"users",USER_ID),{wallets:state.wallets},{merge:true});
+    showToast('✅ ওয়ালেট মুছে ফেলা হয়েছে!');
+    render();
+    renderWalletManageList();
+  } catch(e){showToast('❌ সেভ হয়নি!');}
+};
+
+window.addNewWallet=async function(){
+  const emoji = document.getElementById('newWalletEmoji').value;
+  const name = document.getElementById('newWalletName').value.trim();
+  if(!name){showToast('ওয়ালেটের নাম লিখো!');return;}
+  const newId = 'wallet_'+Date.now();
+  const newWallet = {id:newId, emoji, name, amount:0};
+  state.wallets = [...(state.wallets||JSON.parse(JSON.stringify(DEFAULT_WALLETS))), newWallet];
+  try {
+    await setDoc(doc(db,"users",USER_ID),{wallets:state.wallets},{merge:true});
+    document.getElementById('newWalletName').value='';
+    showToast('✅ নতুন ওয়ালেট যোগ হয়েছে!');
+    render();
+    renderWalletManageList();
+  } catch(e){showToast('❌ সেভ হয়নি!');}
+};
+
+window.openBalanceEdit=function(){
+  const wallets = state.wallets || JSON.parse(JSON.stringify(DEFAULT_WALLETS));
+  // Render balance inputs
+  document.getElementById('walletBalanceEditGrid').innerHTML = wallets.map(w =>
+    `<div class="balance-edit-item">
+      <label>${w.emoji} ${w.name}</label>
+      <input id="walletInput_${w.id}" inputmode="numeric" placeholder="০" type="number" value="${w.amount||''}"/>
+    </div>`
+  ).join('');
+  switchWalletTab('balance');
+  document.getElementById('balanceModal').classList.add('active');
+};
+
+window.submitPawna=async()=>{
+  const name=document.getElementById('pawnaName').value.trim();
+  const amount=parseFloat(document.getElementById('pawnaAmount').value);
+  const reason=document.getElementById('pawnaReason').value.trim();
+  const dueDate=document.getElementById('pawnaDueDate').value;
+  if(!name){showToast('নাম লিখো!');return;}
+  if(!amount||amount<=0){showToast('টাকার পরিমাণ দাও!');return;}
+  if(!reason){showToast('কারণ লিখো!');return;}
+  try {
+    await addDoc(collection(db,"users",USER_ID,"pawnas"),{name,amount,reason,dueDate,paid:false,createdAt:new Date().toISOString()});
+    closePawnaModal();
+    showToast('🤝 পাওনা যোগ হয়েছে!');
+  } catch(e){showToast('❌ সেভ হয়নি!');}
+};
+
+window._markPaid=async(id)=>{
+  const p=state.pawnas.find(p=>p.id===id);
+  if(!p) return;
+  if(!confirm(`${p.name} এর কাছ থেকে ${fmt(p.amount)} আদায় হয়েছে?`)) return;
+  await updateDoc(doc(db,"users",USER_ID,"pawnas",id),{paid:true});
+  showToast('✅ পাওনা আদায় চিহ্নিত হয়েছে!');
+};
+
+window._deletePawna=async(id)=>{
+  if(!confirm('এই পাওনাটা মুছে ফেলবে?')) return;
+  await deleteDoc(doc(db,"users",USER_ID,"pawnas",id));
+  showToast('মুছে ফেলা হয়েছে');
+};
+
+// ── UI ──
+window.openModal=function(type){
+  currentType=type;
+  document.getElementById('modalTitle').textContent=type==='income'?'✅ আয় যোগ করো':'❌ খরচ যোগ করো';
+  document.getElementById('modalTitle').className='modal-title '+type;
+  document.getElementById('submitBtn').textContent=type==='income'?'আয় সেভ করো':'খরচ সেভ করো';
+  document.getElementById('submitBtn').className='submit-btn '+type;
+  const cats=type==='income'?incomeCategories:expenseCategories;
+  document.getElementById('txCategory').innerHTML=cats.map(c=>`<option value="${c}">${categoryIcons[c]||''} ${c}</option>`).join('');
+  document.getElementById('txAmount').className='form-input amount-input '+(type==='income'?'income-input':'expense-input');
+  document.getElementById('txAmount').value='';
+  document.getElementById('txNote').value='';
+  // wallet label + populate
+  const walletLabel = document.getElementById('walletSelectLabel');
+  if(walletLabel) walletLabel.textContent = type==='income' ? '💰 কোন ওয়ালেটে যাবে? *' : '💸 কোন ওয়ালেট থেকে খরচ? *';
+  const wallets = state.wallets || [];
+  const txWalletEl = document.getElementById('txWallet');
+  if(txWalletEl) txWalletEl.innerHTML = wallets.map(w=>`<option value="${w.id}">${w.emoji} ${w.name} (৳ ${Number(w.amount||0).toLocaleString('bn-BD')})</option>`).join('');
+  document.getElementById('txModal').classList.add('active');
+  setTimeout(()=>document.getElementById('txAmount').focus(),300);
+};
+window.closeModal=function(){document.getElementById('txModal').classList.remove('active');};
+
+window.closeBalanceModal=function(){document.getElementById('balanceModal').classList.remove('active');};
+
+window.openPawnaModal=function(){
+  ['pawnaName','pawnaAmount','pawnaReason','pawnaDueDate'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('pawnaModal').classList.add('active');
+  setTimeout(()=>document.getElementById('pawnaName').focus(),300);
+};
+window.closePawnaModal=function(){document.getElementById('pawnaModal').classList.remove('active');};
+
+window.switchPage=function(page,btn){
+  currentPage=page;
+  localStorage.setItem('activePage', page);
+  document.querySelectorAll('.page-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  document.getElementById('bottomNavHisab').style.display=page==='hisab'?'flex':'none';
+  document.getElementById('bottomNavPawna').style.display=page==='pawna'?'flex':'none';
+};
+
+// রিফ্রেশের পর আগের পেজে ফিরে যাও
+(function(){
+  const savedPage = localStorage.getItem('activePage');
+  if(savedPage && savedPage !== 'hisab'){
+    // সব tab থেকে active সরাও
+    document.querySelectorAll('.page-tab').forEach(b=>b.classList.remove('active'));
+    // সব page থেকে active সরাও
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    // সঠিক tab ও page activate করো
+    const tabs = document.querySelectorAll('.page-tab');
+    tabs.forEach(b=>{ if(b.getAttribute('onclick') && b.getAttribute('onclick').includes("'"+savedPage+"'")) b.classList.add('active'); });
+    const pg = document.getElementById('page-'+savedPage);
+    if(pg) pg.classList.add('active');
+    document.getElementById('bottomNavHisab').style.display=savedPage==='hisab'?'flex':'none';
+    document.getElementById('bottomNavPawna').style.display=savedPage==='pawna'?'flex':'none';
+    currentPage = savedPage;
+  }
+})();
+
+window.filterTx=function(type,btn){
+  currentFilter=type;
+  document.querySelectorAll('#page-hisab .filter-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+};
+
+window.filterPawna=function(type,btn){
+  currentPawnaFilter=type;
+  document.querySelectorAll('#page-pawna .filter-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderPawna();
+};
+
+window.downloadPDF=function(type){
+  const now=new Date();
+  const dateStr=now.getDate()+'/'+(now.getMonth()+1)+'/'+now.getFullYear();
+  const fmtNum=n=>'৳ '+Number(n||0).toLocaleString('bn-BD');
+  let bodyContent='';
+  let title='';
+
+  if(type==='tx'){
+    title='লেনদেনের তালিকা';
+    const rows=state.transactions.map(t=>{
+      const d=new Date(t.date);
+      const type_label=t.type==='income'?'আয়':'খরচ';
+      const color=t.type==='income'?'color:#1a7a4a':'color:#d63031';
+      return '<tr><td>'+(d.getDate()+'/'+(d.getMonth()+1)+'/'+d.getFullYear())+'</td><td>'+t.category+'</td><td>'+(t.note||'—')+'</td><td>'+type_label+'</td><td style="text-align:right;font-weight:bold;'+color+'">'+(t.type==='income'?'+':'-')+fmtNum(t.amount)+'</td></tr>';
+    }).join('');
+    bodyContent=state.transactions.length
+      ?'<table><thead><tr><th>তারিখ</th><th>ক্যাটাগরি</th><th>নোট</th><th>ধরন</th><th style="text-align:right">পরিমাণ</th></tr></thead><tbody>'+rows+'</tbody></table>'
+      :'<p style="color:#888;margin-top:20px;">কোনো লেনদেন নেই।</p>';
+  } else {
+    title='পাওনার তালিকা';
+    const rows=state.pawnas.map(p=>{
+      const d=new Date(p.createdAt);
+      const status=p.paid?'✅ আদায়':'⏳ বাকি';
+      const statusColor=p.paid?'color:#1a7a4a':'color:#e67e22';
+      return '<tr><td>'+p.name+'</td><td>'+(p.reason||'—')+'</td><td>'+(d.getDate()+'/'+(d.getMonth()+1)+'/'+d.getFullYear())+'</td><td style="text-align:right;font-weight:bold;color:#e67e22;">'+fmtNum(p.amount)+'</td><td style="text-align:center;'+statusColor+'">'+status+'</td></tr>';
+    }).join('');
+    bodyContent=state.pawnas.length
+      ?'<table><thead><tr><th>নাম</th><th>কারণ</th><th>তারিখ</th><th style="text-align:right">পরিমাণ</th><th style="text-align:center">অবস্থা</th></tr></thead><tbody>'+rows+'</tbody></table>'
+      :'<p style="color:#888;margin-top:20px;">কোনো পাওনা নেই।</p>';
+  }
+
+  const html='<!DOCTYPE html><html lang="bn"><head><meta charset="utf-8"/><title>'+title+'</title>'
+    +'<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet"/>'
+    +'<style>'
+    +'*{margin:0;padding:0;box-sizing:border-box;}'
+    +'body{font-family:"Hind Siliguri",sans-serif;color:#000;background:#fff;padding:24px 28px;}'
+    +'h2{font-size:18px;font-weight:700;margin-bottom:4px;color:#0f5233;}'
+    +'.meta{font-size:12px;color:#555;margin-bottom:16px;border-bottom:2px solid #1a7a4a;padding-bottom:8px;}'
+    +'table{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px;}'
+    +'th{border:1px solid #ccc;padding:8px 10px;font-weight:700;font-size:12px;background:#e8f5ee;color:#0f5233;}'
+    +'td{border:1px solid #ddd;padding:7px 10px;}'
+    +'tr:nth-child(even){background:#f9f9f9;}'
+    +'</style>'
+    +'</head><body>'
+    +'<h2>📋 '+title+'</h2>'
+    +'<div class="meta">তারিখ: '+dateStr+' — হিসাবের খাতা</div>'
+    +bodyContent
+    +'<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"><\/script>'
+    +'<script>'
+    +'window.onload=function(){'
+    +'  var opt={margin:10,filename:"'+title+'_'+dateStr.replace(/\//g,"-")+'.pdf",image:{type:"jpeg",quality:0.98},html2canvas:{scale:2,useCORS:true},jsPDF:{unit:"mm",format:"a4",orientation:"portrait"}};'
+    +'  html2pdf().set(opt).from(document.body).save().then(function(){window.close();});'
+    +'};'
+    +'<\/script>'
+    +'</body></html>';
+
+  const w=window.open('','_blank','width=900,height=700');
+  if(!w){showToast('⚠️ পপআপ ব্লক হয়েছে, অনুমতি দিন!');return;}
+  w.document.open();
+  w.document.write(html);
+  w.document.close();
+  showToast('✅ PDF ডাউনলোড হচ্ছে...');
+};
+
+window.toggleTxFilter=function(){
+  const d=document.getElementById('txFilterDropdown');
+  const p=document.getElementById('pawnaFilterDropdown');
+  p.style.display='none';
+  if(d.style.display==='none'){
+    const btn=document.getElementById('txFilterBtn');
+    const rect=btn.getBoundingClientRect();
+    d.style.top=(rect.bottom+6)+'px';
+    d.style.right=(window.innerWidth-rect.right)+'px';
+    d.style.display='block';
+  } else {
+    d.style.display='none';
+  }
+};
+
+window.setTxFilter=function(type,label){
+  currentFilter=type;
+  document.getElementById('txFilterLabel').textContent=label;
+  document.getElementById('txFilterDropdown').style.display='none';
+  render();
+};
+
+window.togglePawnaFilter=function(){
+  const d=document.getElementById('pawnaFilterDropdown');
+  const t=document.getElementById('txFilterDropdown');
+  t.style.display='none';
+  if(d.style.display==='none'){
+    const btn=document.getElementById('pawnaFilterBtn');
+    const rect=btn.getBoundingClientRect();
+    d.style.top=(rect.bottom+6)+'px';
+    d.style.right=(window.innerWidth-rect.right)+'px';
+    d.style.display='block';
+  } else {
+    d.style.display='none';
+  }
+};
+
+window.setPawnaFilter=function(type,label){
+  currentPawnaFilter=type;
+  document.getElementById('pawnaFilterLabel').textContent=label;
+  document.getElementById('pawnaFilterDropdown').style.display='none';
+  renderPawna();
+};
+
+// Close dropdowns on outside click
+document.addEventListener('click',function(e){
+  if(!e.target.closest('#txFilterBtn')&&!e.target.closest('#txFilterDropdown'))
+    document.getElementById('txFilterDropdown').style.display='none';
+  if(!e.target.closest('#pawnaFilterBtn')&&!e.target.closest('#pawnaFilterDropdown'))
+    document.getElementById('pawnaFilterDropdown').style.display='none';
+});
+
+window.manualSync=function(){
+  setStatus('syncing','সিঙ্ক হচ্ছে...');
+  setTimeout(()=>setStatus('','☁️ Firebase কানেক্টেড — ডেটা অটো সেভ হচ্ছে'),1500);
+  showToast('☁️ ডেটা সিঙ্ক হচ্ছে!');
+};
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+// ── Modal close on overlay tap ──
+document.querySelectorAll('.modal-overlay').forEach(o=>{
+  o.addEventListener('click',e=>{
+    if(e.target===o){closeModal();closeBalanceModal();closePawnaModal();}
+  });
+});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){closeModal();closeBalanceModal();closePawnaModal();}
+});
+
+// ── PWA Install Prompt ──
+let deferredPrompt=null;
+window.addEventListener('beforeinstallprompt',(e)=>{
+  e.preventDefault();
+  deferredPrompt=e;
+  document.getElementById('installBanner').classList.add('show');
+});
+
+document.getElementById('installBtn').addEventListener('click',async()=>{
+  if(!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const {outcome}=await deferredPrompt.userChoice;
+  if(outcome==='accepted') showToast('✅ অ্যাপ ইনস্টল হয়েছে!');
+  deferredPrompt=null;
+  document.getElementById('installBanner').classList.remove('show');
+});
+
+document.getElementById('installClose').addEventListener('click',()=>{
+  document.getElementById('installBanner').classList.remove('show');
+});
+
+window.addEventListener('appinstalled',()=>{
+  document.getElementById('installBanner').classList.remove('show');
+  showToast('✅ অ্যাপ সফলভাবে ইনস্টল হয়েছে!');
+});
+</script>
+</div><!-- /hisabApp -->
+</div><!-- /appContent -->
+</div><!-- /appView -->
+<!-- ══ HOME JS ══ -->
+<script>
+(function(){
+  var months=['জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর'];
+  var d=new Date();
+  document.getElementById('homeDate').textContent=d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear();
+  var hr=d.getHours();
+  var g='আস্সালামু আলাইকুম 👋';
+  if(hr>=5&&hr<12) g='শুভ সকাল ☀️';
+  else if(hr>=12&&hr<17) g='শুভ দুপুর 🌤️';
+  else if(hr>=17&&hr<20) g='শুভ বিকেল 🌇';
+  else if(hr>=20) g='শুভ রাত 🌙';
+  document.getElementById('homeGreeting').textContent=g;
+})();
+
+window.openApp=function(id){
+  var titles={hisab:'📒 হিসাবের খাতা'};
+  document.getElementById('appBarTitle').textContent=titles[id]||'';
+  var v=document.getElementById('appView');
+  v.classList.remove('closing');
+  v.classList.add('active','animate-in');
+  document.getElementById('appContent').scrollTop=0;
+  document.body.style.overflow='hidden';
+  localStorage.setItem('openApp', id);
+};
+
+window.closeApp=function(){
+  var v=document.getElementById('appView');
+  v.classList.add('closing');
+  setTimeout(function(){
+    v.classList.remove('active','closing','animate-in');
+    document.body.style.overflow='';
+  },260);
+  localStorage.removeItem('openApp');
+};
+
+// রিফ্রেশের পর appView restore করো
+(function(){
+  var savedApp = localStorage.getItem('openApp');
+  if(savedApp){
+    var titles={hisab:'📒 হিসাবের খাতা'};
+    document.getElementById('appBarTitle').textContent=titles[savedApp]||'';
+    var v=document.getElementById('appView');
+    v.classList.add('active'); // animate-in নেই, তাই কোনো animation হবে না
+    document.body.style.overflow='hidden';
+  }
+})();
+
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){
+    var v=document.getElementById('appView');
+    if(v.classList.contains('active')) window.closeApp();
+  }
+});
+</script>
+<script>
+// ── ১২ ঘণ্টার ঘড়ি + রিয়েল তাপমাত্রা ──
+const BN_D = ['০','১','২','৩','৪','৫','৬','৭','৮','৯'];
+function toBN(n){ return String(n).split('').map(d=>BN_D[+d]).join(''); }
+
+function updateClock(){
+  const d = new Date();
+  let h = d.getHours(), m = d.getMinutes(), s = d.getSeconds();
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  h = h % 12 || 12;
+  const tEl = document.getElementById('homeTimeBig');
+  const apEl = document.getElementById('homeAmPm');
+  const secEl = document.getElementById('homeSec');
+  const wdEl = document.getElementById('homeWeekDay');
+  if(tEl) tEl.textContent = toBN(h) + ':' + toBN(String(m).padStart(2,'0'));
+  if(apEl) apEl.textContent = ampm;
+  if(secEl) secEl.textContent = toBN(String(s).padStart(2,'0')) + ' সেকেন্ড';
+  const days = ['রবিবার','সোমবার','মঙ্গলবার','বুধবার','বৃহস্পতিবার','শুক্রবার','শনিবার'];
+  if(wdEl) wdEl.textContent = days[d.getDay()];
+}
+updateClock();
+setInterval(updateClock, 1000);
+
+async function fetchTemp(lat, lon){
+  try{
+    const r = await fetch('https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lon+'&current_weather=true');
+    const j = await r.json();
+    const temp = Math.round(j.current_weather.temperature);
+    const wc = j.current_weather.weathercode;
+    const wx = {0:['☀️','পরিষ্কার আকাশ'],1:['🌤️','প্রায়পরিষ্কার আকাশ'],2:['⛅','আধা মেঘলা'],3:['☁️','মেঘলা'],
+      45:['🌫️','কুয়াশা'],48:['🌫️','কুয়াশা'],51:['🌦️','হালকা বৃষ্টি'],53:['🌧️','বৃষ্টি'],
+      55:['🌧️','ভারী বৃষ্টি'],61:['🌧️','বৃষ্টি'],63:['🌧️','বৃষ্টি'],65:['🌧️','ভারী বৃষ্টি'],
+      71:['🌨️','তুষার'],80:['🌦️','ঝরনা'],95:['⛈️','ঝড়'],96:['⛈️','শিলা']};
+    const [icon, desc] = wx[wc] || ['🌡️',''];
+    document.getElementById('homeTempIcon').textContent = icon;
+    document.getElementById('homeTempVal').textContent = toBN(temp) + '°C';
+    document.getElementById('homeTempDesc').textContent = desc;
+  }catch(e){
+    document.getElementById('homeTempVal').textContent = '--°C';
+    document.getElementById('homeTempDesc').textContent = 'সংযোগ নেই';
+  }
+}
+
+function loadTemp(){
+  if(navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(
+      function(p){ fetchTemp(p.coords.latitude, p.coords.longitude); },
+      function(){ fetchTemp(23.8103, 90.4125); }
+    );
+  } else { fetchTemp(23.8103, 90.4125); }
+}
+// PWA safe — delay দিয়ে load করো
+setTimeout(loadTemp, 2000);
+setInterval(loadTemp, 600000);
+</script><script>
+function triggerLogoUpload(){
+  document.getElementById("logoFileInput").click();
+}
+
+function handleLogoUpload(event){
+  var file = event.target.files[0];
+  if(!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e){
+    var dataUrl = e.target.result;
+    localStorage.setItem("appLogo", dataUrl);
+    applyLogo(dataUrl);
+  };
+  reader.readAsDataURL(file);
+}
+
+function applyLogo(dataUrl){
+  var img = document.getElementById("lockLogoImg");
+  var emoji = document.getElementById("lockLogoEmoji");
+  img.src = dataUrl;
+  img.style.display = "block";
+  emoji.style.display = "none";
+}
+
+(function(){
+  var saved = localStorage.getItem("appLogo");
+  if(saved) applyLogo(saved);
+})();
+
+function togglePass(){
+  const p = document.getElementById("lockPass");
+  if(p.type === "password"){
+    p.type = "text";
+  } else {
+    p.type = "password";
+  }
+}
+
+var currentAppPassword = localStorage.getItem("appPassword") || "466531";
+
+function openChangePassword(){
+  document.getElementById("currentPw").value="";
+  document.getElementById("newPw").value="";
+  document.getElementById("confirmPw").value="";
+  document.getElementById("pwChangeError").textContent="";
+  var m = document.getElementById("changePwModal");
+  m.style.display="flex";
+}
+
+function closeChangePassword(){
+  document.getElementById("changePwModal").style.display="none";
+}
+
+function doChangePassword(){
+  var cur = document.getElementById("currentPw").value;
+  var nw = document.getElementById("newPw").value;
+  var conf = document.getElementById("confirmPw").value;
+  var err = document.getElementById("pwChangeError");
+
+  if(cur !== currentAppPassword){
+    err.textContent="❌ বর্তমান পাসওয়ার্ড ভুল!"; return;
+  }
+  if(nw.length < 4){
+    err.textContent="❌ নতুন পাসওয়ার্ড কমপক্ষে ৪ সংখ্যার হতে হবে!"; return;
+  }
+  if(nw !== conf){
+    err.textContent="❌ নতুন পাসওয়ার্ড দুটো মিলছে না!"; return;
+  }
+  currentAppPassword = nw;
+  localStorage.setItem("appPassword", nw);
+  closeChangePassword();
+  alert("✅ পাসওয়ার্ড সফলভাবে পরিবর্তন হয়েছে!");
+}
+
+// প্রতিবার অ্যাপ খুললে পিন চাইবে — sessionStorage ব্যবহার নেই
+var _appUnlocked = false;
+
+window.checkPassword = function(){
+  var input = document.getElementById("lockPass").value;
+  var pw = localStorage.getItem("appPassword") || "466531";
+  if(input === pw){
+    _appUnlocked = true;
+    document.getElementById("lockScreen").classList.remove("visible");
+    document.getElementById("lockPass").value = "";
+    document.getElementById("lockError").textContent = "";
+  } else {
+    document.getElementById("lockError").textContent="ভুল পাসওয়ার্ড!";
+  }
+};
+
+// সবসময় লক স্ক্রিন দেখাবে
+(function(){
+  document.getElementById("lockScreen").classList.add("visible");
+})();
+</script>
+<script>
+// Service Worker রেজিস্ট্রেশন
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('./sw.js')
+      .then(function(reg) { console.log('SW registered'); })
+      .catch(function(err) { console.log('SW error:', err); });
+  });
+}
+</script>
+</body>
+</html>
